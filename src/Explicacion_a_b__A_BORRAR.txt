@@ -1,0 +1,57 @@
+explicacion del inciso a)
+
+	Gran parte de funciones son iguales que las definidas en el Prelude, por ende, no hace falta importar nada y podemos usarlas libremente.
+	Nota: Aquellas que son sacadas del Prelude tienen su comentario indicando que provienen de alli
+
+	tabulateS f n := devuelve [f0 , f1, .. , fn-1] => map f [0..n-1]
+	
+	showtS:= recibe una Seq, y la muestra de forma TreeView (nota, no es recursiva)
+	showlS:= Similar a la anterior
+	
+	joinS:= Dado un conjunto de Seq, las une en una sola. Se resuelve recursivamente aplicando appendS entre la primera y el resto de la list
+
+	reduceS f b s := Dado una funcion f, un valor neutro b y una secuencia s, buscamos calcular:
+		f b ( f x0 ( f .. ( f xn-2 x n-1) .. )) 	(como en foldr, solo que mas rapido claro)
+		
+	La idea, para respetar a como se aplica el TAD, es usando contraccion/expansion:
+		-Contraemos la secuencia a una mas chica
+		-Evaluamos reduce con esa secuencia mas chica
+		-Cuando no podamos contraer mas (caso base), evaluamos en la secuencia mas pequenia posible 
+		y usamos ese resultado para resolver en las instancias mas grandes
+		
+		Notar que en reduce no necesitamos resolver las grandes, ya que la secuencia contraido resuelta da el mismo resultado que la inicial
+		
+		Ejemplo: reduceS + 0 ⟨2,3,6,2⟩ 		--Paso 0
+			 reduceS + 0 ⟨2+3,6+2⟩ = ⟨5,8⟩	--Paso 1
+			 reduceS + 0 ⟨5+8⟩ = ⟨13⟩	--Paso 2
+			 reduceS + 0 ⟨13⟩ = 0 + 13 = 13
+			 
+	
+	scanS f b s := Dado una funcion f, un valor neutro b y una secuencia S, buscamos calcular la tupla:
+			(<b, f b x0, .., f b (f x0 ( f x1 ( .. ( xn-1 xn-2) .. )))>, reduce f b s)
+
+		Similar a como hicimos en reduce, vamos a ir reduciendo s hasta el caso base, solamente que aca el resultado
+		solo nos sirve para la parte del reduce, para la secuencia anterior al reduce si debemos "expandir" nuestro resultado,
+		es decir, usarlo para dar el resultado de la secuencia mayor (notar que se debe dar el resultado de cada paso de contraccion
+		para poder usar en un nivel arriba. Es decir, si contraemos 3 veces, debemos expandir 3 veces)
+		
+
+		Ejemplo: + 0 ⟨x0,x1,x2,x3⟩, llamemos 
+		s = ⟨x0, x1, x2, x3⟩
+		s' = ⟨b , f b (f x0 x1) , f b (f x0 (f x1 (f x2 x3)))⟩
+		r = ⟨b , f b x0 , f b (f x0 x1) , f b (f x0 (f x1 x2)) , f b (f x0 (f x1 (f x2 x3)))⟩
+		
+		siendo r a lo que queremos llegar. Entonces, para i <- [0..n-1]
+			Si i par: ri = s'1/2
+			Si i impar: ri = f s'1/2 si-1 
+			
+		VER EN APUNTES PAG 23 A 27 :)
+		
+
+
+NOTA: la implementacion que esta ahora es O(n) para scan pero o(n^2) para reduceS.
+el chiste con reduce es que se puede sacar recorriendo las dos listas con las que se arma secuencialemente, el domingo lo veo chillindrina
+
+Explicacion inciso b)
+
+creo que son todas o(n) al ser listas, obviamente falta reeverlo, no hace falta justificar jeje.
