@@ -18,9 +18,9 @@ instance Seq [] where
 
     showtS [] = EMPTY
     showtS [x] = ELT x
-    showtS s = NODE (takeS s mid) (dropS s mid)     --chequear si tienen que ser recurisvas (*)
+    showtS s = NODE (takeS s mid) (dropS s mid)
         where mid = lengthS s `div` 2
-
+        
     showlS [] = NIL
     showlS (x:xs) = CONS x xs
 
@@ -30,9 +30,10 @@ instance Seq [] where
     reduceS f b [] = b
     reduceS f b [x] = f b x
     reduceS f b xs = reduceS f b (comprimir xs)
-        where comprimir [] = []
-              comprimir [x] = [x]
-              comprimir (x:y:xs) = f x y : comprimir xs
+        where 
+            comprimir [] = []
+            comprimir [x] = [x]
+            comprimir (x:y:xs) = f x y : comprimir xs
 
     scanS f b [] = ([], b)
     scanS f b [x] = ([b], f b x)
@@ -47,8 +48,9 @@ instance Seq [] where
             comprimir [x] = [x]
             comprimir (x:y:xs) = f x y : comprimir xs
 
-            expandir [] [] = []
-            expandir 
+            expandir [] _ = []
+            expandir (p:ps) [] = [p]
+            expandir (p:ps) (x:y:xs) = p : f p x : expandir ps xs
 
 
     fromList = id                           --Prelude
@@ -58,4 +60,17 @@ El tema de showtS:
     no se si showtS y showlS tienen que ser recursivos, es decir:
         Si al hacer showtS [1,2,3,4,5,6], devuelve NODE [1,2,3] [4,5,6]
         Ese resultado es correcto , o deberia hacer un arbolito con todas hojas :p
+
+INCISO B)
+
+filterS(): W = O(|s| + Σ W(f sᵢ))
+           S = O(|s| + max S(f sᵢ))
+
+reduceS(): W = O(|s|)
+           S = O(|s|)
+
+scanS(): W = O(|s|)
+           S = O(|s|)
+
+
 -}
