@@ -32,30 +32,35 @@ instance Seq A.Arr where
                     | n == 1 = CONS (arr!0) emptyS
                     | otherwise = CONS (arr!0) (dropS arr 1)
                     where n = lengthS arr
-    reduceS f b arr | lengthS arr == 0 = b
-                    | lengthS arr == 1 = f b (nthS arr 0)
-                    | otherwise = let
-                                    n = lengthS arr
-                                    arrContr = tabulateS (\i ->
-                                        if i*2 + 1 < n
-                                        then (f (nthS arr (i*2)) (nthS arr (i*2 + 1)))
-                                        else nthS arr (i*2))(n `div` 2)
-                                  in reduceS f b arrContr
+
+    reduceS f b arr
+                    | lengthS arr == 0 = b
+                    | lengthS arr == 1 = f b (arr ! 0)
+                    | otherwise =
+                        let
+                            n = lengthS arr
+                            arrContr = A.tabulate (\i ->
+                                                        if i*2+1 < n
+                                                        then f (arr ! (i*2)) (arr ! (i*2+1))
+                                                        else arr ! (i*2)) (n `div` 2 + n `mod` 2)
+                        in reduceS f b arrContr
+
     scanS f b arr
                     | lengthS arr == 0 = (emptyS, b)
                     | lengthS arr == 1 = (singletonS b, f b (nthS arr 0))
                     | otherwise =
                         let
                             n = lengthS arr
-                            arrContr = tabulateS (\i ->
-                                if i*2+1 < n
-                                then f (nthS arr (i*2)) (nthS arr (i*2+1))
-                                else nthS arr (i*2)) (n `div` 2 + n `mod` 2)
+                            arrContr = A.tabulate (\i ->
+                                                        if i*2+1 < n
+                                                        then f (arr ! (i*2)) (arr ! (i*2+1))
+                                                        else arr ! (i*2)) (n `div` 2 + n `mod` 2)
+                            
                             (prefijos', total) = scanS f b arrContr
-                            prefijos = tabulateS (\i ->
-                                case i `mod` 2 of
-                                    0 -> nthS prefijos' (i `div` 2)
-                                    _ -> f (nthS prefijos' (i `div` 2)) (nthS arr (i-1))) n
+                            prefijos = A.tabulate (\i ->
+                                                        case i `mod` 2 of
+                                                            0 -> prefijos' ! (i `div` 2)
+                                                            _ -> f (prefijos' ! (i `div` 2)) (arr ! (i-1))) n
                         in (prefijos, total)
 
     fromList        = A.fromList
